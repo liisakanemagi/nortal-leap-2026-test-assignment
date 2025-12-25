@@ -36,14 +36,17 @@ public class LibraryService {
             return Result.failure("BORROW_LIMIT");
         }
         Book entity = book.get();
-        if (entity.getLoanedTo() != null) {
+        if (bookIsAlreadyLoaned(entity)) {
             return Result.failure("BOOK_ALREADY_LOANED");
+        }
+        if (bookIsReserved(memberId, entity)){
+            return Result.failure("BOOK_RESERVED");
         }
         entity.setLoanedTo(memberId);
         entity.setDueDate(LocalDate.now().plusDays(DEFAULT_LOAN_DAYS));
+        entity.getReservationQueue().remove(memberId);
         bookRepository.save(entity);
         return Result.success();
-        // lisa jarjekorra kontroll
     }
 
     public ResultWithNext returnBook(String bookId, String memberId) {
@@ -53,8 +56,8 @@ public class LibraryService {
         }
 
         Book entity = book.get();
-        if (entity.getLoanedTo() == null || !entity.getLoanedTo().equals(memberId)) {
-            return ResultWithNext.failure("INVALID_RETURN"); // Defensive null check
+        if (bookReturnIsInvalid(memberId, entity)) {
+            return ResultWithNext.failure("INVALID_RETURN"); //Note:  Defensive null check
         }
         entity.setLoanedTo(null);
         entity.setDueDate(null);
@@ -62,8 +65,6 @@ public class LibraryService {
                 entity.getReservationQueue().isEmpty() ? null : entity.getReservationQueue().get(0);
         bookRepository.save(entity);
         return ResultWithNext.success(nextMember);
-
-
         //anna raamat jargmisele sobivale laenutajale
         //kustuta uus laenutaja jarjekorrast
     }
@@ -82,7 +83,6 @@ public class LibraryService {
         bookRepository.save(entity);
         return Result.success();
         //kontrolli, kas liige on seda raamatut juba korra broneerinud
-
         //kontrolli, kas raamat on vaba
         // kontrolli, kas liige tohib laenata
         // kutsu valja borrowBook
@@ -117,6 +117,7 @@ public class LibraryService {
             }
         }
         return active < MAX_LOANS;
+        //Suggestion: This method could be private
         //muuda kood efektiivsemaks repository paringuga
     }
 
@@ -136,7 +137,7 @@ public class LibraryService {
 
     public List<Book> overdueBooks(LocalDate today) {
         return bookRepository.findAll().stream()
-                .filter(b -> b.getLoanedTo() != null)
+                .filter(b -> bookIsAlreadyLoaned(b))
                 .filter(b -> b.getDueDate() != null && b.getDueDate().isBefore(today))
                 .toList();
     }
@@ -254,6 +255,18 @@ public class LibraryService {
         }
         memberRepository.delete(existing.get());
         return Result.success();
+    }
+
+    private static boolean bookIsReserved(String memberId, Book entity) {
+        return !entity.getReservationQueue().isEmpty() && !entity.getReservationQueue().getFirst().equals(memberId);
+    }
+
+    private static boolean bookIsAlreadyLoaned(Book entity) {
+        return entity.getLoanedTo() != null;
+    }
+
+    private static boolean bookReturnIsInvalid(String memberId, Book entity) {
+        return entity.getLoanedTo() == null || !entity.getLoanedTo().equals(memberId);
     }
 
     public record Result(boolean ok, String reason) {

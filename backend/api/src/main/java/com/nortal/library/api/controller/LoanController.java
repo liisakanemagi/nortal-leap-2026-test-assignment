@@ -52,7 +52,7 @@ public class LoanController {
   public ResultWithNextResponse returnBook(@RequestBody @Valid ReturnRequest request) {
     LibraryService.ResultWithNext result = libraryService.returnBook(request.bookId(), request.memberId());
     return new ResultWithNextResponse(result.ok(), result.nextMemberId());
-    // Note: The service layer produces detailed failure reasons, but the REST API response shape is intentionally
+    // Note: Added detailed failure reasons to the service layer, but the REST API response shape is intentionally
       // kept unchanged per assignment instructions.
   }
 
