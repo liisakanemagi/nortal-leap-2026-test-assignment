@@ -51,8 +51,9 @@ public class LoanController {
   @PostMapping("/return")
   public ResultWithNextResponse returnBook(@RequestBody @Valid ReturnRequest request) {
     LibraryService.ResultWithNext result = libraryService.returnBook(request.bookId(), request.memberId());
-    //Changed API surface to fulfill task: "Returns should only succeed when initiated by the current borrower"
     return new ResultWithNextResponse(result.ok(), result.nextMemberId());
+    // Note: The service layer produces detailed failure reasons, but the REST API response shape is intentionally
+      // kept unchanged per assignment instructions.
   }
 
   @PostMapping("/extend")

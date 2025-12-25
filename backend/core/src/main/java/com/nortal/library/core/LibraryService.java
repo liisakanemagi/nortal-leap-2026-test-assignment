@@ -48,12 +48,12 @@ public class LibraryService {
     public ResultWithNext returnBook(String bookId, String memberId) {
         Optional<Book> book = bookRepository.findById(bookId);
         if (book.isEmpty()) {
-            return ResultWithNext.failure();
+            return ResultWithNext.failure("BOOK_NOT_FOUND");
         }
 
         Book entity = book.get();
         if (entity.getLoanedTo() == null || !entity.getLoanedTo().equals(memberId)) {
-            return ResultWithNext.failure(); // Defensive null check
+            return ResultWithNext.failure("INVALID_RETURN"); // Defensive null check
         }
         entity.setLoanedTo(null);
         entity.setDueDate(null);
@@ -265,13 +265,13 @@ public class LibraryService {
         }
     }
 
-    public record ResultWithNext(boolean ok, String nextMemberId) {
+    public record ResultWithNext(boolean ok, String reason, String nextMemberId) {
         public static ResultWithNext success(String nextMemberId) {
-            return new ResultWithNext(true, nextMemberId);
+            return new ResultWithNext(true, null, nextMemberId);
         }
 
-        public static ResultWithNext failure() {
-            return new ResultWithNext(false, null);
+        public static ResultWithNext failure(String reason) {
+            return new ResultWithNext(false, reason, null);
         }
     }
 
