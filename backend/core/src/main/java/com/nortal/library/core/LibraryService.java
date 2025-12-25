@@ -45,20 +45,23 @@ public class LibraryService {
         // lisa jarjekorra kontroll
     }
 
-    public ResultWithNext returnBook(String bookId) {
+    public ResultWithNext returnBook(String bookId, String memberId) {
         Optional<Book> book = bookRepository.findById(bookId);
         if (book.isEmpty()) {
             return ResultWithNext.failure();
         }
 
         Book entity = book.get();
+        if (entity.getLoanedTo() == null || !entity.getLoanedTo().equals(memberId)) {
+            return ResultWithNext.failure(); // Defensive null check
+        }
         entity.setLoanedTo(null);
         entity.setDueDate(null);
         String nextMember =
                 entity.getReservationQueue().isEmpty() ? null : entity.getReservationQueue().get(0);
         bookRepository.save(entity);
         return ResultWithNext.success(nextMember);
-        //kontrolli, kes raamatu tagastab
+
 
         //anna raamat jargmisele sobivale laenutajale
         //kustuta uus laenutaja jarjekorrast
