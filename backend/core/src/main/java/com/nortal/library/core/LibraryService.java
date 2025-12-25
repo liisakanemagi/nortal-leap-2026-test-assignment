@@ -35,13 +35,14 @@ public class LibraryService {
         if (!canMemberBorrow(memberId)) {
             return Result.failure("BORROW_LIMIT");
         }
-
         Book entity = book.get();
+        if (entity.getLoanedTo() != null) {
+            return Result.failure("BOOK_ALREADY_LOANED");
+        }
         entity.setLoanedTo(memberId);
         entity.setDueDate(LocalDate.now().plusDays(DEFAULT_LOAN_DAYS));
         bookRepository.save(entity);
         return Result.success();
-        //lisa if konditsioon kontrollimaks, kas raamat on juba laenutatud
         // lisa jarjekorra kontroll
     }
 
