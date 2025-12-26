@@ -39,7 +39,7 @@ public class LibraryService {
         if (bookIsAlreadyLoaned(entity)) {
             return Result.failure("BOOK_ALREADY_LOANED");
         }
-        if (bookIsReserved(memberId, entity)){
+        if (bookIsReserved(memberId, entity)) {
             return Result.failure("BOOK_RESERVED");
         }
         entity.setLoanedTo(memberId);
@@ -78,17 +78,19 @@ public class LibraryService {
             return Result.failure("MEMBER_NOT_FOUND");
         }
         Book entity = book.get();
-        if(entity.getReservationQueue().contains(memberId)){
+        if (entity.getReservationQueue().contains(memberId)) {
             return Result.failure("ALREADY_RESERVED");
+        }
+        if (canBorrowImmediately(memberId, entity)) {
+            Result result = borrowBook(bookId, memberId);
+            if (result.ok()) {
+                return result;
+            }
         }
         entity.getReservationQueue().add(memberId);
         bookRepository.save(entity);
         return Result.success();
 
-
-        //kontrolli, kas raamat on vaba
-        // kontrolli, kas liige tohib laenata
-        // kutsu valja borrowBook
     }
 
     public Result cancelReservation(String bookId, String memberId) {
@@ -260,6 +262,10 @@ public class LibraryService {
 
     private static boolean bookIsAlreadyLoaned(Book entity) {
         return entity.getLoanedTo() != null;
+    }
+
+    private boolean canBorrowImmediately(String memberId, Book entity) {
+        return entity.getLoanedTo() == null && canMemberBorrow(memberId);
     }
 
     private static boolean bookReturnIsInvalid(String memberId, Book entity) {
