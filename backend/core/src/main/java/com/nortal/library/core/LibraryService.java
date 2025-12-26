@@ -110,15 +110,9 @@ public class LibraryService {
         if (!memberRepository.existsById(memberId)) {
             return false;
         }
-        int active = 0;
-        for (Book book : bookRepository.findAll()) {
-            if (memberId.equals(book.getLoanedTo())) {
-                active++;
-            }
-        }
+        Integer active = bookRepository.countByLoanedTo(memberId);
         return active < MAX_LOANS;
         //Suggestion: This method could be private
-        //muuda kood efektiivsemaks repository paringuga
     }
 
     public List<Book> searchBooks(String titleContains, Boolean availableOnly, String loanedTo) {
