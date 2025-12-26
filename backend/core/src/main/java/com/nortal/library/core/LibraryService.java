@@ -54,18 +54,25 @@ public class LibraryService {
         if (book.isEmpty()) {
             return ResultWithNext.failure("BOOK_NOT_FOUND");
         }
-
         Book entity = book.get();
         if (bookReturnIsInvalid(memberId, entity)) {
             return ResultWithNext.failure("INVALID_RETURN"); //Note:  Defensive null check
         }
         entity.setLoanedTo(null);
         entity.setDueDate(null);
-        String nextMember =
-                entity.getReservationQueue().isEmpty() ? null : entity.getReservationQueue().get(0);
         bookRepository.save(entity);
-        return ResultWithNext.success(nextMember);
-        //anna raamat jargmisele sobivale laenutajale
+        if (!entity.getReservationQueue().isEmpty()) {
+            for (String nextMemberId : entity.getReservationQueue()) {
+                if (canMemberBorrow(nextMemberId)) {
+                    Result result = borrowBook(bookId, nextMemberId);
+                    if (result.ok()) {
+                        return ResultWithNext.success(nextMemberId);
+                    }
+                }
+            }
+        }
+        return ResultWithNext.success(null);
+
         //kustuta uus laenutaja jarjekorrast
     }
 
