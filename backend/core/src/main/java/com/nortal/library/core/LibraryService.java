@@ -77,12 +77,15 @@ public class LibraryService {
         if (!memberRepository.existsById(memberId)) {
             return Result.failure("MEMBER_NOT_FOUND");
         }
-
         Book entity = book.get();
+        if(entity.getReservationQueue().contains(memberId)){
+            return Result.failure("ALREADY_RESERVED");
+        }
         entity.getReservationQueue().add(memberId);
         bookRepository.save(entity);
         return Result.success();
-        //kontrolli, kas liige on seda raamatut juba korra broneerinud
+
+
         //kontrolli, kas raamat on vaba
         // kontrolli, kas liige tohib laenata
         // kutsu valja borrowBook
