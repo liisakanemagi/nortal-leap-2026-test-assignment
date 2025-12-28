@@ -4,14 +4,13 @@ import com.nortal.library.core.domain.Book;
 import com.nortal.library.core.domain.Member;
 import com.nortal.library.core.port.BookRepository;
 import com.nortal.library.core.port.MemberRepository;
-import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Service
+
 public class LibraryService {
     private static final int MAX_LOANS = 5;
     private static final int DEFAULT_LOAN_DAYS = 14;
