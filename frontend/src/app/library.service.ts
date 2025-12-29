@@ -43,8 +43,8 @@ export class LibraryApiService {
     return this.post('/cancel-reservation', { bookId, memberId });
   }
 
-  async returnBook(bookId: string): Promise<ActionResult> {
-    return this.post('/return', { bookId });
+  async returnBook(bookId: string, memberId: string): Promise<ActionResult> {
+    return this.post('/return', { bookId, memberId });
   }
 
   async createBook(id: string, title: string): Promise<ActionResult> {

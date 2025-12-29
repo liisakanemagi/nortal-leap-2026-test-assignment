@@ -87,10 +87,10 @@ export class AppComponent {
   }
 
   async returnBook(): Promise<void> {
-    if (!this.selectedBookId) {
+      if (!this.selectedBookId || !this.selectedMemberId) {
       return;
     }
-    await this.runAction(() => this.api.returnBook(this.selectedBookId!));
+    await this.runAction(() => this.api.returnBook(this.selectedBookId!,this.selectedMemberId!));
   }
 
   async createBook(): Promise<void> {
