@@ -69,13 +69,12 @@ public class LibraryService {
                     }
                 } else {
                     entity.getReservationQueue().remove(nextMemberId);
+                    bookRepository.save(entity);
                 }
             }
             bookRepository.save(entity);
         }
         return ResultWithNext.success(null);
-
-        //kustuta uus laenutaja jarjekorrast
     }
 
     public Result reserveBook(String bookId, String memberId) {
