@@ -54,21 +54,24 @@ public class LibraryService {
             return ResultWithNext.failure("BOOK_NOT_FOUND");
         }
         Book entity = book.get();
-        if (bookReturnIsInvalid(memberId, entity)) {
-            return ResultWithNext.failure("INVALID_RETURN"); //Note:  Defensive null check
-        }
+//        if (bookReturnIsInvalid(memberId, entity)) {
+//            return ResultWithNext.failure("INVALID_RETURN");
+//        }
         entity.setLoanedTo(null);
         entity.setDueDate(null);
         bookRepository.save(entity);
         if (!entity.getReservationQueue().isEmpty()) {
-            for (String nextMemberId : entity.getReservationQueue()) {
+            for (String nextMemberId : new ArrayList<>(entity.getReservationQueue())) {
                 if (canMemberBorrow(nextMemberId)) {
                     Result result = borrowBook(bookId, nextMemberId);
                     if (result.ok()) {
                         return ResultWithNext.success(nextMemberId);
                     }
+                } else {
+                    entity.getReservationQueue().remove(nextMemberId);
                 }
             }
+            bookRepository.save(entity);
         }
         return ResultWithNext.success(null);
 

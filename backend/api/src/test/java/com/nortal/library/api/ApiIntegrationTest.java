@@ -138,7 +138,7 @@ class ApiIntegrationTest {
 
     ResultWithNextResponse returned =
         rest.postForObject(
-            url("/api/return"), new ReturnRequest("b1"), ResultWithNextResponse.class);
+            url("/api/return"), new ReturnRequest("b1", "m1"), ResultWithNextResponse.class);
     assertThat(returned.ok()).isTrue();
     assertThat(returned.nextMemberId()).isNull();
 
