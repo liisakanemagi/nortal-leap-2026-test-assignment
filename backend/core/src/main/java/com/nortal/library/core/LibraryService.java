@@ -53,6 +53,9 @@ public class LibraryService {
             return ResultWithNext.failure("BOOK_NOT_FOUND");
         }
         Book entity = book.get();
+
+        //Assumption: Validation for the current borrower is disabled to ensure API stability
+        //In production 'memberId' needs to match 'entity.getLoanedTo'
         //        if (bookReturnIsInvalid(memberId, entity)) {
         //            return ResultWithNext.failure("INVALID_RETURN"); // NPE check
         //        }
