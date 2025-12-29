@@ -41,6 +41,8 @@ public class BookRepositoryAdapter implements BookRepository {
     return jpaRepository.existsById(id);
   }
 
- @Override
- public Integer countByLoanedTo(String memberId) {return jpaRepository.countByLoanedTo(memberId);}
+  @Override
+  public Integer countByLoanedTo(String memberId) {
+    return jpaRepository.countByLoanedTo(memberId);
+  }
 }
